@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.*;
 
-public final class Server {
+final class Server {
     private static ServerSocket server;
 
     private static void bind() throws IOException {
@@ -24,7 +24,7 @@ public final class Server {
         }
     }
 
-    public static void startup() throws Exception {
+    static void startup() throws Exception {
         bind();
         SwingUtilities.invokeLater(() -> {
             ControlPanel.init();
@@ -33,17 +33,17 @@ public final class Server {
         accept();
     }
 
-    public static int getPort() {
+    static int getPort() {
         return server.getLocalPort();
     }
-    public static InetAddress getAddress() {
+    static InetAddress getAddress() {
         return server.getInetAddress();
     }
-    public static int getBacklog() {
+    static int getBacklog() {
         return Protocol.DEFAULT_BACKLOG;
     }
 
-    public static void close() throws Exception {
+    static void close() throws Exception {
         if (!server.isClosed()) server.close();
         System.out.println("Server was closed");
     }

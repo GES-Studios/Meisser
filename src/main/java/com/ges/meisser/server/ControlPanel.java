@@ -6,10 +6,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class ControlPanel {
+class ControlPanel {
     private static JFrame frame;
 
-    public static void init() {
+    static void init() {
         frame = new JFrame("Meisser Server - Control Panel");
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,7 +58,7 @@ public class ControlPanel {
         return button;
     }
 
-    public static void display() {
+    static void display() {
         frame.setVisible(true);
     }
 }

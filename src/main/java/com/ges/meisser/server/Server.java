@@ -20,7 +20,7 @@ final class Server {
             try {
                 Socket socket = server.accept();
                 System.out.println("Client connected: " + socket.toString());
-            } catch (SocketException ignored) { break; }
+            } catch (SocketException ignored) {}
         }
     }
 

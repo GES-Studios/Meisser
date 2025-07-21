@@ -7,26 +7,34 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 class ControlPanel {
-    private static JFrame frame;
+    private static final JFrame FRAME = new JFrame("Meisser Server - Control Panel");
+
+    private static final JLabel
+            HOST_LABEL = new JLabel(),
+            PORT_LABEL = new JLabel(),
+            BACKLOG_LABEL = new JLabel();
+    private static final JButton EXIT = new JButton("Exit");
 
     static void init() {
-        frame = new JFrame("Meisser Server - Control Panel");
-
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.addWindowListener(new WindowAdapter() {
+        FRAME.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        FRAME.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 Main.quit(0);
             }
         });
-        frame.setMinimumSize(new Dimension(500, 400));
+        FRAME.setMinimumSize(new Dimension(500, 400));
+
+        EXIT.addActionListener(e -> Main.quit(0));
+        EXIT.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         draw();
-        frame.pack();
-        frame.setLocationRelativeTo(null);
+        FRAME.pack();
+        FRAME.setLocationRelativeTo(null);
     }
 
     private static void draw() {
-        Container container = frame.getContentPane();
+        Container container = FRAME.getContentPane();
         GridLayout layout = new GridLayout(1, 2);
         container.setLayout(layout);
 
@@ -34,31 +42,27 @@ class ControlPanel {
         leftBox.setLayout(new BoxLayout(leftBox, BoxLayout.Y_AXIS));
         leftBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        leftBox.add(new JLabel("Host: " + Server.getAddress()));
-        leftBox.add(Box.createVerticalStrut(10));
-        leftBox.add(new JLabel("Port: " + Server.getPort()));
-        leftBox.add(Box.createVerticalStrut(10));
-        leftBox.add(new JLabel("Backlog: " + Server.getBacklog()));
+        HOST_LABEL.setText("Host: " + Server.getAddress());
+        PORT_LABEL.setText("Port: " + Server.getPort());
+        BACKLOG_LABEL.setText("Backlog: " + Server.getBacklog());
 
+        leftBox.add(HOST_LABEL);
+        leftBox.add(Box.createVerticalStrut(10));
+        leftBox.add(PORT_LABEL);
+        leftBox.add(Box.createVerticalStrut(10));
+        leftBox.add(BACKLOG_LABEL);
 
         JPanel rightBox = new JPanel();
         rightBox.setLayout(new BoxLayout(rightBox, BoxLayout.Y_AXIS));
         rightBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        rightBox.add(button("Exit", e -> Main.quit(0)));
+        rightBox.add(EXIT);
 
         container.add(leftBox);
         container.add(rightBox);
     }
 
-    private static JButton button(String title, ActionListener listener) {
-        JButton button = new JButton(title);
-        button.addActionListener(listener);
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        return button;
-    }
-
     static void display() {
-        frame.setVisible(true);
+        FRAME.setVisible(true);
     }
 }

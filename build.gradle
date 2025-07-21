@@ -2,7 +2,9 @@ plugins {
     id("java")
 }
 
-group = "com.ges.meisser"
+var mainPackage = "com.ges.meisser"
+
+group = mainPackage
 version = "0.0.1a"
 
 repositories {
@@ -12,6 +14,25 @@ repositories {
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+}
+
+tasks.register("clientify", {
+    jar.manifest.attributes(
+            "Main-Class": "${mainPackage}.client.Main"
+    )
+    archivesBaseName = "${rootProject.name}-Client"
+})
+tasks.register("serverify", {
+    jar.manifest.attributes(
+            "Main-Class": "${mainPackage}.server.Main"
+    )
+    archivesBaseName = "${rootProject.name}-Server"
+})
+
+jar {
+    manifest.attributes(
+            "Created-By": "GES[C1cDez, Sniper-Alex, DioxinCF3, kamisama]"
+    )
 }
 
 tasks.test {

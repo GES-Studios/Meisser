@@ -2,14 +2,13 @@ package com.ges.meisser.server;
 
 import com.ges.meisser.network.PacketInput;
 import com.ges.meisser.network.PacketOutput;
-import com.ges.meisser.util.InvalidDataException;
+import com.ges.meisser.util.ProtocolException;
 import static com.ges.meisser.util.Protocol.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 class User {
     private static int userId = 0;
@@ -30,7 +29,7 @@ class User {
         userId++;
     }
 
-    public void validate() throws InvalidDataException, IOException {
+    public void validate() throws ProtocolException, IOException {
         System.out.println("Validating user");
 
         PacketInput request = new PacketInput(HANDSHAKE_REQUEST_LENGTH);
@@ -41,13 +40,18 @@ class User {
         if (request.getVersion() != PROTOCOL_VERSION_ID) {
             response.writeByte(HANDSHAKE_SERVER_RESPONSE_STATUS_INCOMPATIBLE_PROTOCOL_VERSION);
             response.send(output);
-            throw new InvalidDataException("Incompatible protocol version");
+            throw new ProtocolException("Incompatible protocol version");
+        }
+
+        this.username = new String(request.getByteArray()).trim();
+        if (Server.hasUser(username)) {
+            response.writeByte(HANDSHAKE_SERVER_RESPONSE_STATUS_DUPLICATE_USERNAME);
+            response.send(output);
+            throw new ProtocolException("Duplicate username");
         }
 
         response.writeByte(HANDSHAKE_SERVER_RESPONSE_STATUS_OK);
         response.send(output);
-
-        this.username = new String(request.getByteArray()).trim();
 
         System.out.println("User joined: " + username);
     }
@@ -62,6 +66,7 @@ class User {
         }
         //I dont know why, but it remains unclosed
         try { socket.close(); } catch (IOException ignored) {};
+        ControlPanel.removeUser(username);
         System.out.println("User left: " + username);
         thread.interrupt();
     }
@@ -72,5 +77,9 @@ class User {
 
     public boolean isActive() {
         return !socket.isClosed();
+    }
+
+    public String getName() {
+        return username;
     }
 }

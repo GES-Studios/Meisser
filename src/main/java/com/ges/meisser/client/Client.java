@@ -2,7 +2,7 @@ package com.ges.meisser.client;
 
 import com.ges.meisser.network.PacketInput;
 import com.ges.meisser.network.PacketOutput;
-import com.ges.meisser.util.InvalidDataException;
+import com.ges.meisser.util.ProtocolException;
 import static com.ges.meisser.util.Protocol.*;
 
 import javax.swing.*;
@@ -56,7 +56,7 @@ final class Client {
         System.out.println("Client was closed");
     }
 
-    static void handshake() throws InvalidDataException, IOException {
+    static void handshake() throws ProtocolException, IOException {
         PacketOutput request = new PacketOutput(HANDSHAKE_REQUEST_LENGTH);
         request.writeByte(HANDSHAKE_INIT_CODE);
         request.writeUTF(username);
@@ -68,9 +68,9 @@ final class Client {
         int version = response.getVersion();
 
         if (code == HANDSHAKE_SERVER_RESPONSE_STATUS_INCOMPATIBLE_PROTOCOL_VERSION)
-            throw new InvalidDataException("Server uses different Protocol version: " +
+            throw new ProtocolException("Server uses different Protocol version: " +
                     ((version >> 8) & 0xff) + "." + (version & 0xff) + ". Try update/downgrade your client");
         else if (code == HANDSHAKE_SERVER_RESPONSE_STATUS_DUPLICATE_USERNAME)
-            throw new InvalidDataException("User with the same name '" + username + "' is already on the server");
+            throw new ProtocolException("User with the name '" + username + "' is already on the server");
     }
 }

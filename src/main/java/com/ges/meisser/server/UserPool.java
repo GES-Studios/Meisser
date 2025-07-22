@@ -1,6 +1,6 @@
 package com.ges.meisser.server;
 
-import com.ges.meisser.util.InvalidDataException;
+import com.ges.meisser.util.ProtocolException;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -16,12 +16,17 @@ class UserPool {
         this.users = Collections.synchronizedList(new ArrayList<>());
     }
 
-    public void add(Socket socket) throws InvalidDataException, IOException {
+    public void add(Socket socket) throws ProtocolException, IOException {
         User user = new User(socket);
         user.validate();
         clear();
         users.add(user);
         user.startThread();
+        ControlPanel.addUser(user.getName());
+    }
+
+    public boolean isUnique(String username) {
+        return users.stream().map(User::getName).noneMatch(name -> name.equals(username));
     }
 
     public void iterate(Consumer<User> consumer) {

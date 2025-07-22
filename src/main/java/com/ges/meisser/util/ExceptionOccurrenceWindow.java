@@ -23,6 +23,7 @@ public class ExceptionOccurrenceWindow extends JFrame {
             }
         });
 
+        errorLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         setError(throwable.toString(), true);
         moreButton.addActionListener(e -> {
             setError(getError(throwable), false);
@@ -57,6 +58,7 @@ public class ExceptionOccurrenceWindow extends JFrame {
         JPanel buttons = new JPanel(new GridLayout(1, 2));
         buttons.add(moreButton);
         buttons.add(okButton);
+        buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         container.add(errorLabel, BorderLayout.CENTER);
         container.add(buttons, BorderLayout.SOUTH);

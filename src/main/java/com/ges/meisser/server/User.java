@@ -1,5 +1,7 @@
 package com.ges.meisser.server;
 
+import com.ges.meisser.network.PacketInput;
+import com.ges.meisser.network.PacketOutput;
 import com.ges.meisser.util.InvalidDataException;
 import static com.ges.meisser.util.Protocol.*;
 
@@ -31,30 +33,22 @@ class User {
     public void validate() throws InvalidDataException, IOException {
         System.out.println("Validating user");
 
-        byte[] handshakeReq = new byte[HANDSHAKE_REQUEST_LENGTH];
-        input.read(handshakeReq);
+        PacketInput request = new PacketInput(HANDSHAKE_REQUEST_LENGTH);
+        request.receive(input);
 
-        if (!isValidSignature(handshakeReq))
-            throw new InvalidDataException("Packet has no valid signature");
-        else if (handshakeReq[SIGNATURE_LENGTH + VERSION_LENGTH] != HANDSHAKE_INIT_CODE)
-            throw new InvalidDataException("Packet is not signed as HADNSHAKE");
+        PacketOutput response = new PacketOutput(HANDSHAKE_RESPONSE_LENGTH);
 
-        byte[] handshakeResp = new byte[HANDSHAKE_RESPONSE_LENGTH];
-        insertSignature(handshakeResp);
-        insertVersion(handshakeResp);
-
-        if (!isValidVersion(handshakeReq)) {
-            handshakeResp[SIGNATURE_LENGTH + VERSION_LENGTH] =
-                    HANDSHAKE_SERVER_RESPONSE_STATUS_INCOMPATIBLE_PROTOCOL_VERSION;
-            output.write(handshakeResp);
-
-            throw new InvalidDataException("Client has incompatible version");
+        if (request.getVersion() != PROTOCOL_VERSION_ID) {
+            response.writeByte(HANDSHAKE_SERVER_RESPONSE_STATUS_INCOMPATIBLE_PROTOCOL_VERSION);
+            response.send(output);
+            throw new InvalidDataException("Incompatible protocol version");
         }
 
-        handshakeResp[SIGNATURE_LENGTH + VERSION_LENGTH] = HANDSHAKE_SERVER_RESPONSE_STATUS_OK;
-        output.write(handshakeResp);
+        response.writeByte(HANDSHAKE_SERVER_RESPONSE_STATUS_OK);
+        response.send(output);
 
-        this.username = new String(handshakeReq, SIGNATURE_LENGTH + VERSION_LENGTH + 1, USERNAME_LENGTH).trim();
+        this.username = new String(request.getByteArray()).trim();
+
         System.out.println("User joined: " + username);
     }
 

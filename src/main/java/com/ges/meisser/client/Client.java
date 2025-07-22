@@ -1,5 +1,7 @@
 package com.ges.meisser.client;
 
+import com.ges.meisser.network.PacketInput;
+import com.ges.meisser.network.PacketOutput;
 import com.ges.meisser.util.InvalidDataException;
 import static com.ges.meisser.util.Protocol.*;
 
@@ -55,24 +57,19 @@ final class Client {
     }
 
     static void handshake() throws InvalidDataException, IOException {
-        byte[] handshakeReq = new byte[HANDSHAKE_REQUEST_LENGTH];
-        insertSignature(handshakeReq);
-        insertVersion(handshakeReq);
-        handshakeReq[SIGNATURE_LENGTH + VERSION_LENGTH] = HANDSHAKE_INIT_CODE;
-        copyStringInto(username, handshakeReq, SIGNATURE_LENGTH + VERSION_LENGTH + 1, USERNAME_LENGTH);
+        PacketOutput request = new PacketOutput(HANDSHAKE_REQUEST_LENGTH);
+        request.writeByte(HANDSHAKE_INIT_CODE);
+        request.writeUTF(username);
+        request.send(output);
 
-        output.write(handshakeReq);
+        PacketInput response = new PacketInput(HANDSHAKE_RESPONSE_LENGTH);
+        response.receive(input);
+        int code = response.readUnsignedByte();
+        int version = response.getVersion();
 
-        byte[] handshakeResp = new byte[HANDSHAKE_RESPONSE_LENGTH];
-        input.read(handshakeResp);
-        if (!isValidSignature(handshakeResp))
-            throw new InvalidDataException("Packet has no valid signature");
-
-        int code = handshakeResp[SIGNATURE_LENGTH + VERSION_LENGTH];
         if (code == HANDSHAKE_SERVER_RESPONSE_STATUS_INCOMPATIBLE_PROTOCOL_VERSION)
             throw new InvalidDataException("Server uses different Protocol version: " +
-                    handshakeResp[SIGNATURE_LENGTH] + "." + handshakeResp[SIGNATURE_LENGTH + 1] +
-                    ". Try update/downgrade your client");
+                    ((version >> 8) & 0xff) + "." + (version & 0xff) + ". Try update/downgrade your client");
         else if (code == HANDSHAKE_SERVER_RESPONSE_STATUS_DUPLICATE_USERNAME)
             throw new InvalidDataException("User with the same name '" + username + "' is already on the server");
     }

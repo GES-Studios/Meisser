@@ -1,5 +1,6 @@
 package com.ges.meisser.server;
 
+import com.ges.meisser.util.InvalidDataException;
 import com.ges.meisser.util.Protocol;
 
 import javax.swing.*;
@@ -8,6 +9,7 @@ import java.net.*;
 
 final class Server {
     private static ServerSocket server;
+    private static final UserPool USER_POOL = new UserPool();
 
     private static void bind() throws IOException {
         server = new ServerSocket(Protocol.DEFAULT_PORT, Protocol.DEFAULT_BACKLOG,
@@ -20,7 +22,10 @@ final class Server {
             try {
                 Socket socket = server.accept();
                 System.out.println("Client connected: " + socket.toString());
-            } catch (SocketException ignored) {}
+                USER_POOL.add(socket);
+            } catch (InvalidDataException ide) {
+                System.err.println("Terminating connection. Reason: " + ide.getMessage());
+            } catch (IOException ignored) {};
         }
     }
 

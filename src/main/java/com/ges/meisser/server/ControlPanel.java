@@ -1,5 +1,7 @@
 package com.ges.meisser.server;
 
+import com.ges.meisser.util.Protocol;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -12,7 +14,8 @@ class ControlPanel {
     private static final JLabel
             HOST_LABEL = new JLabel(),
             PORT_LABEL = new JLabel(),
-            BACKLOG_LABEL = new JLabel();
+            BACKLOG_LABEL = new JLabel(),
+            PROTOCOL_VERSION_LEVEL = new JLabel();
     private static final JButton EXIT = new JButton("Exit");
 
     static void init() {
@@ -45,12 +48,16 @@ class ControlPanel {
         HOST_LABEL.setText("Host: " + Server.getAddress());
         PORT_LABEL.setText("Port: " + Server.getPort());
         BACKLOG_LABEL.setText("Backlog: " + Server.getBacklog());
+        PROTOCOL_VERSION_LEVEL.setText("Protocol Version: " +
+                Protocol.PROTOCOL_VERSION_MAJOR + "." + Protocol.PROTOCOL_VERSION_MINOR);
 
         leftBox.add(HOST_LABEL);
         leftBox.add(Box.createVerticalStrut(10));
         leftBox.add(PORT_LABEL);
         leftBox.add(Box.createVerticalStrut(10));
         leftBox.add(BACKLOG_LABEL);
+        leftBox.add(Box.createVerticalStrut(10));
+        leftBox.add(PROTOCOL_VERSION_LEVEL);
 
         JPanel rightBox = new JPanel();
         rightBox.setLayout(new BoxLayout(rightBox, BoxLayout.Y_AXIS));

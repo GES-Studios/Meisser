@@ -1,5 +1,7 @@
 package com.ges.meisser.client;
 
+import com.ges.meisser.util.Protocol;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,6 +52,11 @@ public final class RegistrationPanel {
             } catch (Exception ex) {
                 LOG_AREA.setText("Enter a valid port\n" + ex.getMessage());
                 PORT_FIELD.setText("");
+                return;
+            }
+            if (USERNAME_FIELD.getText().length() > Protocol.USERNAME_LENGTH) {
+                LOG_AREA.setText("Your username is too long. It must be under " + Protocol.USERNAME_LENGTH + " characters");
+                USERNAME_FIELD.setText(USERNAME_FIELD.getText().substring(0, Protocol.USERNAME_LENGTH));
                 return;
             }
 

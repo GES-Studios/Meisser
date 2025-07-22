@@ -2,9 +2,6 @@ package com.ges.meisser.client;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class RegistrationPanel {
@@ -49,14 +46,15 @@ public final class RegistrationPanel {
 
         CONNECT_BUTTON.addActionListener(e -> {
             try {
-                Integer.parseInt(PORT_FIELD.getText());
-            } catch (NumberFormatException nfe) {
-                forwardExceptionToLog(nfe);
+                RegistrationPanel.isValidPort(PORT_FIELD.getText());
+            } catch (Exception ex) {
+                LOG_AREA.setText("Enter a valid port\n" + ex.getMessage());
                 PORT_FIELD.setText("");
                 return;
             }
 
             DONE.set(true);
+            CONNECT_BUTTON.setText("...");
         });
 
         draw();
@@ -110,9 +108,9 @@ public final class RegistrationPanel {
         );
     }
 
-    static void forwardExceptionToLog(Exception e) {
-        LOG_AREA.setText(e.toString());
-        DONE.set(false);
+    private static void isValidPort(String portStr) throws NumberFormatException, IllegalStateException {
+        int port = Integer.parseInt(portStr);
+        if (port < 0 || port > 65535) throw new IllegalStateException("Port must be in range 0-65535. You gave " + portStr);
     }
 
     static void display() {

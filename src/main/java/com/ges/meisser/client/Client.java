@@ -21,12 +21,7 @@ final class Client {
             RegistrationPanel.display();
         });
         RegistrationPanel.waitTillUserInput();
-        try {
-            connect(RegistrationPanel.getHost(), RegistrationPanel.getPort());
-        } catch (Exception e) {
-            RegistrationPanel.forwardExceptionToLog(e);
-            throw new RuntimeException(e);
-        }
+        connect(RegistrationPanel.getHost(), RegistrationPanel.getPort());
         Client.username = RegistrationPanel.getUsername();
         RegistrationPanel.close();
 

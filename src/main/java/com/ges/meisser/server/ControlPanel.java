@@ -4,7 +4,6 @@ import com.ges.meisser.util.Protocol;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -17,13 +16,15 @@ class ControlPanel {
             BACKLOG_LABEL = new JLabel(),
             PROTOCOL_VERSION_LEVEL = new JLabel();
     private static final JButton EXIT = new JButton("Exit");
-    private static final UserList USER_LIST = new UserList();
 
-    static void addUser(String name) {
-        USER_LIST.addUsername(name);
+    private static final DefaultListModel<String> USER_LIST_MODEL = new DefaultListModel<>();
+    private static final JList<String> USER_LIST = new JList<>(USER_LIST_MODEL);
+
+    static void addUserToList(String name) {
+        USER_LIST_MODEL.addElement(name);
     }
-    static void removeUser(String name) {
-        USER_LIST.removeUsername(name);
+    static void removeUserFromList(String name) {
+        USER_LIST_MODEL.removeElement(name);
     }
 
 

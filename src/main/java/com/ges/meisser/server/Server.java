@@ -12,7 +12,11 @@ final class Server {
     private static final UserPool USER_POOL = new UserPool();
 
     static boolean hasUser(String name) {
-        return !USER_POOL.isUnique(name);
+        return USER_POOL.hasUsername(name);
+    }
+    static void removeUser(User user) {
+        ControlPanel.removeUserFromList(user.getName());
+        USER_POOL.remove(user);
     }
 
     private static void bind() throws IOException {
@@ -28,7 +32,7 @@ final class Server {
                 System.out.println("Client connected: " + socket.toString());
                 USER_POOL.add(socket);
             } catch (ProtocolException pe) {
-                System.err.println("Terminating connection. Reason: " + pe.getMessage());
+                System.err.println("\u001b[31;1mTerminating connection. Reason: " + pe.getMessage() + "\u001b[0m");
             } catch (IOException ignored) {};
         }
     }

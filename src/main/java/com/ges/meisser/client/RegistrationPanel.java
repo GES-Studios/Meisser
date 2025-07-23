@@ -14,8 +14,8 @@ public final class RegistrationPanel {
             PORT_LABEL = new JLabel("Port: "),
             USERNAME_LABEL = new JLabel("Username: ");
     private static final JTextField
-            HOST_FIELD = new JTextField(),
-            PORT_FIELD = new JTextField(),
+            HOST_FIELD = new JTextField(Protocol.INADDR_ANY),   //Temporary
+            PORT_FIELD = new JTextField(String.valueOf(Protocol.DEFAULT_PORT)),
             USERNAME_FIELD = new JTextField();
     private static final JButton CONNECT_BUTTON = new JButton("Connect");
     private static final JTextArea LOG_AREA = new JTextArea();
@@ -52,6 +52,10 @@ public final class RegistrationPanel {
             } catch (Exception ex) {
                 LOG_AREA.setText("Enter a valid port\n" + ex.getMessage());
                 PORT_FIELD.setText("");
+                return;
+            }
+            if (USERNAME_FIELD.getText().trim().isEmpty()) {
+                LOG_AREA.setText("Your username cannot be empty");
                 return;
             }
             if (USERNAME_FIELD.getText().length() > Protocol.USERNAME_LENGTH) {

@@ -19,21 +19,19 @@ class UserPool {
     public void add(Socket socket) throws ProtocolException, IOException {
         User user = new User(socket);
         user.validate();
-        clear();
         users.add(user);
         user.startThread();
-        ControlPanel.addUser(user.getName());
+        ControlPanel.addUserToList(user.getName());
+    }
+    public void remove(User user) {
+        this.users.remove(user);
     }
 
-    public boolean isUnique(String username) {
-        return users.stream().map(User::getName).noneMatch(name -> name.equals(username));
+    public boolean hasUsername(String username) {
+        return users.stream().map(User::getName).anyMatch(name -> name.equals(username));
     }
 
     public void iterate(Consumer<User> consumer) {
         users.forEach(consumer);
-    }
-
-    private void clear() {
-        users.removeIf(user -> !user.isActive());
     }
 }

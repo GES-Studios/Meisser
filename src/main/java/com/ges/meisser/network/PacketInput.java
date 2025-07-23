@@ -1,20 +1,14 @@
 package com.ges.meisser.network;
 
-import com.ges.meisser.util.ProtocolException;
-import com.ges.meisser.util.Protocol;
-
 import java.io.*;
 
 public class PacketInput implements DataInput {
     private final int size;
-    private ByteArrayInputStream bais;
     private DataInputStream dis;
-    private int tempVersion;
 
     public PacketInput(int size) {
         this.size = size;
     }
-
 
     @Override
     public void readFully(byte[] b) throws IOException { dis.readFully(b); }
@@ -49,27 +43,10 @@ public class PacketInput implements DataInput {
     public String readUTF() throws IOException { return dis.readUTF(); }
 
 
-    public void receive(InputStream is) throws IOException, ProtocolException {
-        byte[] buffer = new byte[Protocol.SIGNATURE_LENGTH + Protocol.VERSION_LENGTH + size];
-        is.read(buffer);
-        this.bais = new ByteArrayInputStream(buffer);
-        this.dis = new DataInputStream(bais);
-        checkSignature();
-        tempVersion = (readUnsignedByte() << 8) | readUnsignedByte();
-    }
-
-    public byte[] getByteArray() {
+    public int receive(InputStream is) throws IOException {
         byte[] buffer = new byte[size];
-        bais.read(buffer, 0, size);
-        return buffer;
-    }
-
-
-    private void checkSignature() throws ProtocolException, IOException {
-        if (readByte() != 'M' || readByte() != 'P' || readByte() != '3' || readByte() != '2')
-            throw new ProtocolException("Invalid signature");
-    }
-    public int getVersion() throws IOException {
-        return tempVersion;
+        int count = is.read(buffer);
+        this.dis = new DataInputStream(new ByteArrayInputStream(buffer));
+        return count;
     }
 }

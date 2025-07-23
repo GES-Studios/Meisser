@@ -58,19 +58,25 @@ final class Client {
 
     static void handshake() throws ProtocolException, IOException {
         PacketOutput request = new PacketOutput(HANDSHAKE_REQUEST_LENGTH);
-        request.writeByte(HANDSHAKE_INIT_CODE);
+        request.write(HANDSHAKE_INIT_CODE);
+        request.write(PROTOCOL_VERSION_MAJOR);
+        request.write(PROTOCOL_VERSION_MINOR);
         request.writeUTF(username);
+
         request.send(output);
 
         PacketInput response = new PacketInput(HANDSHAKE_RESPONSE_LENGTH);
         response.receive(input);
-        int code = response.readUnsignedByte();
-        int version = response.getVersion();
 
-        if (code == HANDSHAKE_SERVER_RESPONSE_STATUS_INCOMPATIBLE_PROTOCOL_VERSION)
-            throw new ProtocolException("Server uses different Protocol version: " +
-                    ((version >> 8) & 0xff) + "." + (version & 0xff) + ". Try update/downgrade your client");
-        else if (code == HANDSHAKE_SERVER_RESPONSE_STATUS_DUPLICATE_USERNAME)
-            throw new ProtocolException("User with the name '" + username + "' is already on the server");
+        int error = response.readUnsignedByte();
+        if (error == HANDSHAKE_SERVER_RESPONSE_STATUS_INCOMPATIBLE_PROTOCOL_VERSION)
+            throw new ProtocolException("Server, you are trying to connect to, uses different protocol version: " +
+                    response.readUnsignedByte() + "." + response.readUnsignedByte() +
+                    ". Your one is " + PROTOCOL_VERSION_MAJOR + "." + PROTOCOL_VERSION_MINOR +
+                    ". Try update/downgrade your client app version");
+        else if (error == HANDSHAKE_SERVER_RESPONSE_STATUS_DUPLICATE_USERNAME)
+            throw new ProtocolException("User with name '" + username + "' is already on the server");
+        else if (error != HANDSHAKE_SERVER_RESPONSE_STATUS_OK)
+            throw new ProtocolException("Server sent unrecognized error code: " + error);
     }
 }

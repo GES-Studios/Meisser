@@ -35,22 +35,28 @@ class User {
         PacketInput request = new PacketInput(HANDSHAKE_REQUEST_LENGTH);
         request.receive(input);
 
+        if (request.readUnsignedByte() != HANDSHAKE_INIT_CODE)
+            throw new ProtocolException("Not handshaking");
+
         PacketOutput response = new PacketOutput(HANDSHAKE_RESPONSE_LENGTH);
 
-        if (request.getVersion() != PROTOCOL_VERSION_ID) {
-            response.writeByte(HANDSHAKE_SERVER_RESPONSE_STATUS_INCOMPATIBLE_PROTOCOL_VERSION);
+        int versionMajor = request.readUnsignedByte(), versionMinor = request.readUnsignedByte();
+        if (versionMajor != PROTOCOL_VERSION_MAJOR || versionMinor != PROTOCOL_VERSION_MINOR) {
+            response.write(HANDSHAKE_SERVER_RESPONSE_STATUS_INCOMPATIBLE_PROTOCOL_VERSION);
+            response.write(PROTOCOL_VERSION_MAJOR);
+            response.write(PROTOCOL_VERSION_MINOR);
             response.send(output);
             throw new ProtocolException("Incompatible protocol version");
         }
 
-        this.username = new String(request.getByteArray()).trim();
+        this.username = request.readUTF();
         if (Server.hasUser(username)) {
-            response.writeByte(HANDSHAKE_SERVER_RESPONSE_STATUS_DUPLICATE_USERNAME);
+            response.write(HANDSHAKE_SERVER_RESPONSE_STATUS_DUPLICATE_USERNAME);
             response.send(output);
-            throw new ProtocolException("Duplicate username");
+            throw new ProtocolException("User with name '" + username + "' is already on the server");
         }
 
-        response.writeByte(HANDSHAKE_SERVER_RESPONSE_STATUS_OK);
+        response.write(HANDSHAKE_SERVER_RESPONSE_STATUS_OK);
         response.send(output);
 
         System.out.println("User joined: " + username);
@@ -66,7 +72,7 @@ class User {
         }
         //I dont know why, but it remains unclosed
         try { socket.close(); } catch (IOException ignored) {};
-        ControlPanel.removeUser(username);
+        Server.removeUser(this);
         System.out.println("User left: " + username);
         thread.interrupt();
     }

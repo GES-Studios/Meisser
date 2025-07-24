@@ -42,6 +42,8 @@ final class Client {
             UserInterface.init();
             UserInterface.display();
         });
+
+        listenServer();
     }
 
     static InetAddress getAddress() {
@@ -78,5 +80,39 @@ final class Client {
             throw new ProtocolException("User with name '" + username + "' is already on the server");
         else if (error != HANDSHAKE_SERVER_RESPONSE_STATUS_OK)
             throw new ProtocolException("Server sent unrecognized error code: " + error);
+    }
+
+    static void sendMessage(String message) throws IOException, ProtocolException {
+        PacketOutput request = new PacketOutput(MESSAGE_REQUEST_LENGTH);
+        request.write(SENDING_MESSAGE_INIT_CODE);
+        request.writeUTF(message);
+        request.send(output);
+    }
+
+    static void listenServer() {
+        while (true) {
+            try {
+                PacketInput response = new PacketInput(MESSAGE_BROADCAST_LENGTH);
+                int status = response.receive(input);
+                if (status == -1) throw new RuntimeException("Server closed connection");
+
+                analyzeResponsePacket(response);
+            } catch (IOException e) { break; }
+        }
+    }
+
+    private static void analyzeResponsePacket(PacketInput packet) throws IOException {
+        int code = packet.readUnsignedByte();
+
+        if (code == BROADCASTING_MESSAGE_INIT_CODE) {
+            String user = packet.readUTF();
+            String message = packet.readUTF();
+            receiveMessage(user, message);
+        }
+        else System.err.println("Server sent unrecognized initial code");
+    }
+
+    static void receiveMessage(String user, String message) throws IOException {
+        UserInterface.appendToMessageDisplay("<" + user + "> " + message + "\n");
     }
 }

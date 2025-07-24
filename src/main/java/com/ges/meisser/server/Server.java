@@ -1,5 +1,6 @@
 package com.ges.meisser.server;
 
+import com.ges.meisser.network.PacketOutput;
 import com.ges.meisser.util.ProtocolException;
 import com.ges.meisser.util.Protocol;
 
@@ -54,6 +55,16 @@ final class Server {
     }
     static int getBacklog() {
         return Protocol.DEFAULT_BACKLOG;
+    }
+
+    static void broadcast(PacketOutput packet) {
+        USER_POOL.iterate(user -> {
+            try {
+                user.send(packet);
+            } catch (IOException e) {
+                throw new RuntimeException("Exception during the broadcasting", e);
+            }
+        });
     }
 
     static void close() throws Exception {

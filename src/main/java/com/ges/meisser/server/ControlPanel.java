@@ -47,12 +47,11 @@ class ControlPanel {
     }
 
     private static void draw() {
-        Container container = FRAME.getContentPane();
-        container.setLayout(new GridLayout(1, 2));
+        JPanel panel = new JPanel(new GridLayout(1, 2));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JPanel leftBox = new JPanel();
         leftBox.setLayout(new GridLayout(2, 1));
-        leftBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
@@ -76,12 +75,13 @@ class ControlPanel {
 
         JPanel rightBox = new JPanel();
         rightBox.setLayout(new BoxLayout(rightBox, BoxLayout.Y_AXIS));
-        rightBox.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         rightBox.add(EXIT);
 
-        container.add(leftBox);
-        container.add(rightBox);
+        panel.add(leftBox);
+        panel.add(rightBox);
+
+        FRAME.getContentPane().add(panel);
     }
 
     static void display() {

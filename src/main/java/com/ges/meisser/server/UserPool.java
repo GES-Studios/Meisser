@@ -32,6 +32,9 @@ class UserPool {
     }
 
     public void iterate(Consumer<User> consumer) {
-        users.forEach(consumer);
+        //No default Java implementations for synchronized list iterations
+        synchronized (users) {
+            users.forEach(consumer);
+        }
     }
 }

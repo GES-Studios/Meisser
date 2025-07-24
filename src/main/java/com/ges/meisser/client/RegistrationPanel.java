@@ -75,9 +75,9 @@ public final class RegistrationPanel {
     }
 
     private static void draw() {
-        Container container = FRAME.getContentPane();
-        GroupLayout layout = new GroupLayout(container);
-        container.setLayout(layout);
+        JPanel panel = new JPanel();
+        GroupLayout layout = new GroupLayout(panel);
+        panel.setLayout(layout);
 
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
@@ -117,6 +117,8 @@ public final class RegistrationPanel {
                 .addComponent(CONNECT_BUTTON)
                 .addComponent(LOG_AREA)
         );
+
+        FRAME.getContentPane().add(panel);
     }
 
     private static void isValidPort(String portStr) throws NumberFormatException, IllegalStateException {

@@ -8,7 +8,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public class ExceptionOccurrenceWindow extends JFrame {
+    private final JPanel panel;
+
     private final JLabel errorLabel = new JLabel();
+    private final JTextArea errorLog = new JTextArea();
     private final JButton moreButton = new JButton("More");
     private final JButton okButton = new JButton("OK");
 
@@ -23,10 +26,15 @@ public class ExceptionOccurrenceWindow extends JFrame {
             }
         });
 
-        errorLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        setError(throwable.toString(), true);
+        this.panel = new JPanel(new BorderLayout());
+
+        errorLabel.setText("<html> <font color='red'> " + throwable.getMessage() + " </font> </html>");
+        errorLog.setText(getError(throwable));
+        errorLog.setEditable(false);
+
         moreButton.addActionListener(e -> {
-            setError(getError(throwable), false);
+            ExceptionOccurrenceWindow.this.panel.remove(errorLabel);
+            ExceptionOccurrenceWindow.this.panel.add(errorLog, BorderLayout.CENTER);
             ExceptionOccurrenceWindow.this.pack();
             ExceptionOccurrenceWindow.this.setLocationRelativeTo(null);
         });
@@ -36,31 +44,27 @@ public class ExceptionOccurrenceWindow extends JFrame {
         });
 
         draw();
+
         this.pack();
         this.setLocationRelativeTo(null);
     }
 
-    private void setError(String content, boolean doRed) {
-        content = content.replaceAll("\n", "<br>");
-        errorLabel.setText(String.format("<html> %s %s %s </html>", doRed ? "<font color='red'>" : "",
-                content, doRed ? "</font>" : ""));
-    }
-    public static String getError(Throwable throwable) {
-        StringWriter sw = new StringWriter();
-        throwable.printStackTrace(new PrintWriter(sw));
-        return sw.toString();
-    }
-
     private void draw() {
-        Container container = this.getContentPane();
-        container.setLayout(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         JPanel buttons = new JPanel(new GridLayout(1, 2));
         buttons.add(moreButton);
         buttons.add(okButton);
-        buttons.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        container.add(errorLabel, BorderLayout.CENTER);
-        container.add(buttons, BorderLayout.SOUTH);
+        panel.add(errorLabel, BorderLayout.CENTER);
+        panel.add(buttons, BorderLayout.SOUTH);
+
+        this.getContentPane().add(panel);
+    }
+
+    public static String getError(Throwable throwable) {
+        StringWriter sw = new StringWriter();
+        throwable.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }
